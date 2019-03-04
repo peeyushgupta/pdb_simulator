@@ -4,3 +4,4 @@ class Item(object):
         self.id = id
         self.state = state
         self.path = [0]
+		self.is_candidate = True
