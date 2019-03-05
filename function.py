@@ -6,8 +6,8 @@ import constants
 
 class Function(object):
 
-    def __init__(self, id, cost, is_first=False, is_last= False, prev_func=None, next_func=None,
-                 name=None, func=None):
+    def __init__(self, id, cost, selectivity, is_first=False, is_last= False, prev_func=None, next_func=None,
+                 name=None, func=None, dummy=False):
         self.id = id
         self.cost = cost
         self.is_first = is_first
@@ -16,6 +16,8 @@ class Function(object):
         self.next_func = next_func
         self.name = name
         self.func = func
+        self.selectivity = selectivity
+        self.dummy = dummy
 
     def run(self, item, transition_prob, params=None):
         # For simulation purposes just sleep
