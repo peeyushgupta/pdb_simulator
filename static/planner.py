@@ -1,3 +1,7 @@
+import numpy as np
+
+from constants import *
+
 class OGPlanner(object):
 
     def __init__(self, n):
@@ -27,50 +31,56 @@ class OGPlanner(object):
                     skip[k][l] = (notSkipCost > skipCost)
 
             cost = C[0][1]
-            included = [n]
+            included = []
             k = 0
             for l in range(1, n):
                 if not skip[k][l]:
-                    included = [l] + included
+                    included.append(l)
                     k = l
 
+            included.append(n)
         return (cost, included)
 
 
-Yes = 0
-No = 1
-Maybe = 2
-
 class IGPlanner(object):
 
-    def __init__(self, n):
+    def __init__(self, n, functions, prob_matrix_resolve):
         self.I = 0
         self.n = n
-        self.v = [0]*(n+1)
+        self.v = functions
         self.c = [0]*(n+1)
         self.OGP = OGPlanner(n)
+        self.pmat_resolve = prob_matrix_resolve
 
     def evaluate(self, t):
-        return (Yes, No, Maybe)[0]
+        return np.random.randint(0, 2)
 
-    def resProb(self, t, j):
-        return 0.5
+    def resProb(self, t, j, I, pmat_resolve):
+        return pmat_resolve[t][I][j]
 
-    def tupleHandler(self, t, I, c, n, P, v, OGP):
-        out  = []
+    def tupleHandler(self, t, I, c, n, v, path, OGP):
+
         cost = 0
         included = []
+        path.append(I)
         status = self.evaluate(t)
-        if status==Yes or (status==Maybe and i == n):
-            out.append(t)
-        elif status==Maybe:
+        if status==YES or (status == MAYBE and I == n):
+            return (t, YES, cost, path)
+
+        elif status==MAYBE:
             if I==n-1:
                 v[n].tupleHandler(t)
             else:
-                P[I+1..n]
+                P = [0.1]*(n-(I+1)+1)
                 for j in range(I+1, n+1):
-                    P[j] = self.resProb(t, j)
-                (cost, included) ← OGP.plan(1−P, c)
-                next = min(included)
+                    P[j-(I+1)] = self.pmat_resolve[t][I][j]
+                (cost, included) = OGP.plan(map(lambda x: 1-x, P), c[I+1:])
+                next = min(included) + (I+1)
                 v[next].tupleHandler(t)
+        else:
+            return (t, NO)
 
+    def plan(self, t, n, c, v):
+        path = []
+        print (self.tupleHandler(t, 0, c, n, ))
+        print (path)
