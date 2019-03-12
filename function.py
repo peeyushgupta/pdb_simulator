@@ -22,9 +22,22 @@ class Function(object):
     def run(self, item, transition_prob, params=None):
         # For simulation purposes just sleep
         # should change to actual function call later
-        time.sleep(self.cost*1.0/constants.SIMULATION_TIME_MUL)
+        # time.sleep(self.cost*1.0/constants.SIMULATION_TIME_MUL)
 
         res = random.random() < transition_prob[item.state][self.id]
+        if res == True:
+            item.state = self.id
+        else:
+            item.state = -1
+
+        return res
+
+    def run_with_selectivity(self, item):
+        # For simulation purposes just sleep
+        # should change to actual function call later
+        # time.sleep(self.cost*1.0/constants.SIMULATION_TIME_MUL)
+
+        res = random.random() > self.selectivity
         if res == True:
             item.state = self.id
         else:
