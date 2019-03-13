@@ -43,11 +43,23 @@ def plot_selected(sel, cost, picked):
 
 
 def plot_results_with_epoch(true, false):
-    plt.plot(true, marker="o")
-    plt.plot(false, marker="^")
+    plt.plot(true, )
+    plt.plot(false,)
 
     plt.xlabel('Epochs')
     plt.legend(['True', 'False'])
+    plt.show()
+
+
+def plot_results_with_epoch_multi(true, false, true_s, false_s):
+    plt.plot(true, )
+    plt.plot(false,)
+
+    plt.plot(true_s,)
+    plt.plot(false_s)
+
+    plt.xlabel('Epochs')
+    plt.legend(['True(NS)', 'False(NS)', 'True(S)', 'False(S)'])
     plt.show()
 
 

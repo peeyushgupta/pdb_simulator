@@ -46,7 +46,7 @@ class Simulator(object):
     def print_simulator_parameters(self):
         pass
 
-    def simulate_progressive_ogp(self):
+    def simulate_progressive_ogp(self, shuffle=False):
         ogp = OGPlanner(self.num_functions)
         cost, path = ogp.plan(self.num_functions, self.func_sel, self.func_cost)
         functions = list(filter(lambda x: x.id in path, self.functions))
@@ -54,13 +54,15 @@ class Simulator(object):
         false = [0]
         maybe = [0]
         cumu_cost = [0]
-
         items_batch = int(self.budget/cost)
-
         epoch = 1
+
+        if shuffle:
+            np.random.shuffle(self.items)
+
         for i in range(0, self.num_items, items_batch):
             items = self.items[i:i+items_batch]
-            function_map = {j:functions for j in range(i, i+items_batch)}
+            function_map = {self.items[j].id:functions for j in range(i, min(i+items_batch, self.num_items))}
 
             epoch_plan = plan.Plan(items, function_map)
             exec = executor.DefaultExectuor(epoch_plan, self.budget)
@@ -93,7 +95,8 @@ if __name__ == "__main__":
     print (ans)
     plot.plot_selected(sim.func_sel, sim.func_cost, ans[1])
 
-    results = sim.simulate_progressive_ogp()
-    plot.plot_results_with_epoch(results[0], results[1])
+    results = sim.simulate_progressive_ogp(shuffle=False)
+    results_s = sim.simulate_progressive_ogp(shuffle=True)
+    plot.plot_results_with_epoch_multi(results[0], results[1], results_s[0], results_s[1])
     plot.plot_epoch_times(results[3])
 
