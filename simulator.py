@@ -7,7 +7,8 @@ import generator.uniform
 from function import Function
 from item import Item
 from constants import *
-from static.planner import OGPlanner
+from static.planner import OGPlanner, IGPlannerAlternative
+
 
 class Simulator(object):
 
@@ -28,7 +29,6 @@ class Simulator(object):
         self.epoch_weights = []
         self.func_sel = []
         self.func_cost = []
-
         self.data_generator = generator.uniform.UniformDataGenerator(
             self.num_items, self.num_functions, self.num_epochs, self.filter)
 
@@ -100,3 +100,14 @@ if __name__ == "__main__":
     plot.plot_results_with_epoch_multi(results[0], results[1], results_s[0], results_s[1])
     plot.plot_epoch_times(results[3])
 
+    num_items = 100000
+    num_func = 10
+    sim = Simulator(num_items, num_func, 50, 100)
+    sim.init_simulation()
+    versions = []
+    for i in range(num_func+1):
+        versions.append(IGPlannerAlternative(i, num_func, sim.func_cost, num_items))
+    for i in range(num_func+1):
+        versions[i].set_versions(versions)
+    for i in range(num_items):
+        versions[0].plan(sim.items[i])

@@ -1,11 +1,12 @@
 class Item(object):
 
-    def __init__(self, id, state=0, is_candidate=True, selected=False):
+    def __init__(self, id, state=0, is_candidate=True, selected=False, func_sel=None):
         self.id = id
         self.state = state
         self.path = [0]
         self.is_candidate = is_candidate
         self.selected = selected
+        self.func_sel = func_sel;
 
     def result(self, prob_matrix_true, num_functions, honest=True):
 
