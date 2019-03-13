@@ -2,6 +2,7 @@ import numpy as np
 
 from constants import *
 
+
 class OGPlanner(object):
 
     def __init__(self, n):
