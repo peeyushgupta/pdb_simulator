@@ -9,6 +9,16 @@ def plot_selectivity(data):
     plt.show()
 
 
+def plot_selectivity_item(data):
+
+    for i in range(len(data)):
+        plt.plot(data[i])
+
+    plt.xlabel('Functions')
+    plt.ylabel('Selectivity')
+    plt.show()
+
+
 def plot_cost(data):
 
     plt.plot(data, marker="o")

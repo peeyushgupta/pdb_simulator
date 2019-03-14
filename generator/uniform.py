@@ -53,8 +53,18 @@ class UniformDataGenerator(DefaultDataGenerator):
         self.functions[self.num_functions].is_last = True
 
     def create_prob_matrix_true(self):
-        for i in range(self.num_items):
-            pass
+        for j in range(self.num_items):
+            func_sel = [0] * (self.num_functions + 1)
+            func_sel[0] = 1
+            func_sel[self.num_functions] = self.filter
+            max_gap = (1 - self.filter) / (self.num_functions - 1) / 100
+            min_gap = 0
+
+            for i in range(self.num_functions - 1, 0, -1):
+                func_sel[i] = np.random.uniform(func_sel[i + 1] + min_gap, func_sel[i + 1] + max_gap)
+                max_gap = (1 - func_sel[i]) / i
+                min_gap = max_gap / 50
+            self.items[j].func_sel = func_sel
 
     def create_prob_matrix_resolve(self):
         for i in range(self.num_items):

@@ -6,7 +6,8 @@ class Item(object):
         self.path = [0]
         self.is_candidate = is_candidate
         self.selected = selected
-        self.func_sel = func_sel;
+        self.func_sel = func_sel
+        self.lineage = {}
 
     def result(self, prob_matrix_true, num_functions, honest=True):
 
@@ -18,3 +19,6 @@ class Item(object):
         else:
             # Cannot say, since result depends upon the path the item takes
             pass
+
+    def get_false_prob(self):
+        return self.func_sel

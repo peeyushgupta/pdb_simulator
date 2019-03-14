@@ -25,6 +25,8 @@ class Function(object):
         # time.sleep(self.cost*1.0/constants.SIMULATION_TIME_MUL)
 
         res = random.random() < transition_prob[item.state][self.id]
+        item.lineage[self.id] = res
+
         if res == True:
             item.state = self.id
         else:
@@ -38,6 +40,8 @@ class Function(object):
         # time.sleep(self.cost*1.0/constants.SIMULATION_TIME_MUL)
 
         res = random.random() > self.selectivity
+        item.lineage[self.id] = res
+
         if res == True:
             item.state = self.id
         else:
