@@ -70,6 +70,19 @@ class UniformDataGenerator(DefaultDataGenerator):
         for i in range(self.num_items):
             pass
 
+    def create_prob_row_resolve(self, prev_prob_row,start=0, low=0.0, high=1.0):
+        res_prob_row = [0.0] * (self.num_functions + 1)
+        low = max(res_prob_row[start], prev_prob_row[start+1])
+        max_gap = (high - low) / (self.num_functions - start) / 100
+        min_gap = 0
+        for i in range(start + 1, self.num_functions):
+            low = max(res_prob_row[i - 1], prev_prob_row[i])
+            res_prob_row[i] = np.random.uniform(low + min_gap, low + max_gap)
+            max_gap = (1 - res_prob_row[i]) / i
+            min_gap = max_gap / 50
+        res_prob_row[self.num_functions] = high
+        return res_prob_row
+
     def generate_epoch_weights(self):
         self.epoch_weights = [0] * (self.num_epochs)
         self.epoch_weights[0] = MAX_EPOCH_WT

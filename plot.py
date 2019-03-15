@@ -73,6 +73,15 @@ def plot_results_with_epoch_multi(true, false, true_s, false_s):
     plt.show()
 
 
+def plot_dynamic_results_with_epoch_multi(true, false):
+    plt.plot(true, )
+    plt.plot(false, )
+
+    plt.xlabel('Epochs')
+    plt.legend(['True(NS)', 'False(NS)'])
+    plt.show()
+
+
 def plot_epoch_times(times):
     plt.plot(times, marker="o")
 

@@ -1,3 +1,6 @@
+import numpy as np
+
+
 class DefaultDataGenerator(object):
 
     def __init__(self, num_items, num_functions, epochs, filter_):
@@ -41,6 +44,13 @@ class DefaultDataGenerator(object):
 
     def create_prob_matrix_resolve(self):
         pass
+
+    def create_prob_row_resolve(self, prev_prob_row,start=0, low=0.0, high=1.0):
+        res_prob_row = [0.0] * (self.num_functions + 1)
+        for i in range(start + 1, self.num_functions + 1):
+            low = max(res_prob_row[i - 1], prev_prob_row[i])
+            res_prob_row[i] = np.random.uniform(low, high)
+        return res_prob_row
 
     def generate_epoch_weights(self):
         pass

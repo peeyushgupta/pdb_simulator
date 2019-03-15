@@ -88,7 +88,7 @@ class IGPlanner(object):
 
 class IGPlannerAlternative(object):
 
-    def __init__(self, i, n, cost, num_items):
+    def __init__(self, i, n, cost, num_items, ddg):
         self.i = i
         self.n = n
         self.v = None
@@ -96,30 +96,32 @@ class IGPlannerAlternative(object):
         self.num_items = num_items
         self.OGP = OGPlanner(n)
         self.pmat_resolve = [[0] * (n+1) for _ in range(num_items)]
+        self.ddg = ddg
 
     def set_versions(self, functions):
         self.v = functions
 
     def set_res_prob(self, t, start, last_executed_func=0):
-        high = 1.0
-        res_prob_row = [0.0] * (self.n + 1)
-        if start == 0:
-            for i in range(1, self.n + 1):
-                low = res_prob_row[i-1]
-                res_prob_row[i] = np.random.uniform(low, high)
-            self.pmat_resolve[t.id] = res_prob_row
-        else:
-            for i in range(start + 1, self.n + 1):
-                low = max(res_prob_row[i - 1], self.v[last_executed_func].pmat_resolve[t.id][i])
-                res_prob_row[i] = np.random.uniform(low, high)
-            self.pmat_resolve[t.id] = res_prob_row
+        low = 0.0
+        high = 0.8
+        prev_res_prob_row = [0.0] * (self.n + 1)
+        if last_executed_func != 0:
+            prev_res_prob_row = self.v[last_executed_func].pmat_resolve[t.id]
+        self.pmat_resolve[t.id] = self.ddg.create_prob_row_resolve(prev_res_prob_row,start, low, high)
 
     def evaluate(self, t, p):
         ans = np.random.uniform()
         if ans <= p:
-            return NO
+            if ans <= p/2:
+                return YES
+            else:
+                return NO
         else:
             return MAYBE
+
+    def evaluate_tuple(self, t, current_version):
+        p = self.pmat_resolve[t.id][current_version]
+        return self.evaluate(t, p)
 
     def tupleHandler(self, t, path, cost, last_executed_func=0):
         included = []
@@ -130,28 +132,56 @@ class IGPlannerAlternative(object):
             status = self.evaluate(t, self.v[last_executed_func].pmat_resolve[t.id][self.i])
         cost = cost + self.c[self.i]
         if status == YES or (status == MAYBE and self.i == self.n):
-            return t, YES, path, cost
+            return t, YES, path, cost, self.i, 0
 
         elif status == MAYBE:
             if self.i == self.n-1:
                 self.set_res_prob(t, self.i, last_executed_func)
-                return self.v[self.n].tupleHandler(t, path, cost, self.i)
+                next_v = self.i+1
+                return t, MAYBE, path, cost, self.i, next_v
             else:
                 self.set_res_prob(t, self.i, last_executed_func)
-                p_list = []
+                p_list = [1.0]
                 for j in range(self.i+1, self.n+1):
                     p_list.append(1 - (self.pmat_resolve[t.id][j]))
                 cost_list = [0.0]
                 for j in range(self.i+1, self.n+1):
                     cost_list.append(self.c[j])
-                (tmp_cost, included) = self.OGP.plan(len(p_list), p_list, cost_list)
+                (tmp_cost, included) = self.OGP.plan((len(p_list)-1), p_list, cost_list)
                 next_v = min(included) + self.i
-                return self.v[next_v].tupleHandler(t, path, cost, self.i)
+                return t, MAYBE, path, cost, self.i, next_v
         else:
-            return t, NO, path, 0
+            return t, NO, path, 0, 0, 0
+
+    def plan_one_iteration(self, t, path, cost, prev_version, next_version):
+        return self.v[next_version].tupleHandler(t, path, cost, prev_version)
+
+    def plan_next_iteration(self, t, last_executed_func):
+        path = []
+        if self.i == self.n:
+            return t, self.i, path, 0
+        elif self.i == self.n - 1:
+            self.set_res_prob(t, self.i, last_executed_func)
+            next_v = self.i + 1
+            path.append(next_v)
+            return t, self.i, path, self.c[next_v]
+        else:
+            self.set_res_prob(t, self.i, last_executed_func)
+            p_list = [1.0]
+            for j in range(self.i + 1, self.n + 1):
+                p_list.append(1 - (self.pmat_resolve[t.id][j]))
+            cost_list = [0.0]
+            for j in range(self.i + 1, self.n + 1):
+                cost_list.append(self.c[j])
+            (tmp_cost, path) = self.OGP.plan((len(p_list)-1), p_list, cost_list)
+            return t, self.i, list(map(lambda x: x+self.i, path)), tmp_cost
 
     def plan(self, t):
         path = []
-        (t, status, path, cost) = self.tupleHandler(t, [], 0)
-        if status == 0:
-            print(t.id, path, "yes", cost)
+        cost = 0
+        status = MAYBE
+        prev_version = 0
+        next_version = 0
+        while status == MAYBE:
+            (t, status, path, cost, prev_version, next_version) = self.plan_one_iteration(t, path, cost, prev_version, next_version)
+        return t, status, path, cost
