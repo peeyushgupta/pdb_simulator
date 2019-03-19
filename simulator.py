@@ -131,7 +131,7 @@ class Simulator(object):
     def simulate_progressive_dynamic_agp(self, ddg):
         dynamic_agp = IGPDyanmicPlanner(self.num_functions, self.functions, self.func_cost, self.items, ddg)
         tuples = []
-        for i in range(num_items):
+        for i in range(self.num_items):
             t, prev, tmp_path, tmp_cost = dynamic_agp.plan_item(self.items[i], 0, 0)
             tuples.append((tmp_cost, t, prev, tmp_path, []))
         tuples.sort(key=lambda x: x[0])
@@ -196,8 +196,8 @@ if __name__ == "__main__":
     num_func = 10
     sim = Simulator(num_items, num_func, 300000, 100)
     sim.init_simulation()
-    ddg = DefaultDataGenerator(num_items, num_func, 50, 0.2)
-    sim.simulate_progressive_dynamic_agp(ddg)
-    results = sim.simulate_progressive_dynamic_ogp()
+    ddg = DefaultDataGenerator(num_items, num_func, 100, 0.4)
+    results = sim.simulate_progressive_dynamic_agp(ddg)
     plot.plot_dynamic_results_with_epoch_multi(results[0], results[1])
+    print(results[0], results[1], results[2])
     plot.plot_epoch_times(results[3])

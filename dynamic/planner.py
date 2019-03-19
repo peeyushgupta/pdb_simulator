@@ -41,4 +41,7 @@ class IGPDyanmicPlanner(object):
         return self.versions[current_version].plan_next_iteration(t, last_version)
 
     def evaluate(self, t, current_version, last_version):
-        return self.versions[last_version].evaluate_tuple(t, current_version)
+        tmp_value = self.versions[last_version].evaluate_tuple(t, current_version)
+        if current_version == self.n and tmp_value == MAYBE:
+            return YES
+        return tmp_value

@@ -103,7 +103,7 @@ class IGPlannerAlternative(object):
 
     def set_res_prob(self, t, start, last_executed_func=0):
         low = 0.0
-        high = 0.8
+        high = self.ddg.filter
         prev_res_prob_row = [0.0] * (self.n + 1)
         if last_executed_func != 0:
             prev_res_prob_row = self.v[last_executed_func].pmat_resolve[t.id]
@@ -112,10 +112,7 @@ class IGPlannerAlternative(object):
     def evaluate(self, t, p):
         ans = np.random.uniform()
         if ans <= p:
-            if ans <= p/2:
-                return YES
-            else:
-                return NO
+            return NO
         else:
             return MAYBE
 
